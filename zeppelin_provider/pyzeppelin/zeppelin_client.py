@@ -90,7 +90,9 @@ class ZeppelinClient:
                 raise Exception("Fail to get ticket after Knox SSO, status: {}, status_text: {}" \
                                 .format(resp.status_code, resp.text))
         else:
-            resp = self.session.post(self.zeppelin_rest_url + "/api/login",
+            login_url = self.zeppelin_rest_url + "/api/login"
+            logging.info(f"Basic Shiro Login: {login_url}")
+            resp = self.session.post(login_url,
                                      data = {'userName': user_name, 'password': password})
             self._check_response(resp)
 

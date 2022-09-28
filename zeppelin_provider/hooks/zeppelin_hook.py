@@ -34,7 +34,9 @@ class ZeppelinHook(BaseHook, LoggingMixin):
     ) -> None:
         super().__init__()
         self.z_conn = self.get_connection(conn_id)
-        zeppelin_url = "http://" + self.z_conn.host + ":" + str(self.z_conn.port)
+        schema = self.z_conn.schema if self.z_conn.schema else "http"
+        port = ":" + str(self.z_conn.port) if self.z_conn.port else ''
+        zeppelin_url = f"{schema}://{self.z_conn.host}{port}"
         extra_config = self.z_conn.extra_dejson
         self.knox_sso = extra_config.get('KNOX_SSO', None)
         self.log.info("KNOX_SSO: " + str(self.knox_sso))
@@ -46,11 +48,11 @@ class ZeppelinHook(BaseHook, LoggingMixin):
         self.z_client = ZeppelinClient(self.client_config)
 
     def login(self) -> None:
-        if self.knox_sso:
+        if self.z_conn.login or self.knox_sso:
             self.log.info("Knox is enabled, self.login via knox sso")
-            user = self.z_conn.self.login
+            user = self.z_conn.login
             password = self.z_conn.password
-            self.z_client.self.login(user, password)
+            self.z_client.login(user, password)
 
     def run_note(self, note_id: str, parameters: Optional[Dict[str, str]]={}) -> None:
         note_result = self.z_client.execute_note(note_id, parameters)
